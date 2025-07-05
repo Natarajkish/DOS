@@ -67,7 +67,7 @@ def start_sniffing(interface=None):
     # Sniff UDP packets
     sniff(iface=interface, filter="udp", prn=packet_callback, store=0)
 
-if _name_ == "__main__":
+if __name__ == "__main__":
     # Get current time (optional)
     get_current_time()
 
